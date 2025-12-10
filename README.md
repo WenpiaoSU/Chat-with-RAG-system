@@ -1,33 +1,36 @@
 # Chat-with-RAG-system
 ## 功能实现
 
-- 模型推理服务接入：
-  
-  * [x] 集成 Xinference 推理框架，实现大模型本地化部署。
-  * [ ] 实现 OpenAI API 协议兼容。
-- Embedding 模型集成：
-  
-  * [x] 支持本地 Embedding 模型（如 bge-large-zh, Qwen3-embedding）的调用与切换。
-- 多模态大模型集成
-  
-  * [ ] 接入多模态大模型，实现“图+文”理解。
-- 多格式文档加载:
-  
-  * [ ] 支持 Markdown, PDF, Word, PPT 等基础文档加载。 ->目前已支持PDF，MarkDown，图片OCR
-  * [ ] 实现文档自动清理与格式规范化。
-- 文本切分与向量化：
-  
-  * [ ] 搭建自动化处理流水线：加载 -> 切分 -> 向量化 -> 写入。
-  * [ ] 向量存储管理（Chroma向量库）
-- 问答链：
-  
-  * [ ] 实现从用户输入到检索到输出的整体问答链。
-- 前端界面
-  
-  * [ ] 基础问答 UI：基于 Streamlit 构建简易对话窗口和知识库上传界面。
-- 优化：解决"查不准"的问题，引入高级 RAG 策略并扩展多模态能力。
-  
-  * [ ] 长文档摘要分块
-  * [ ] 查询优化/查询重写
-  * [ ] 混合检索与重排序
-  * [ ] 模型微调
+**LLM & Embedding Core**
+
+* [x] 集成 Xinference 推理框架，实现大模型本地化部署。
+* [x] 兼容 OpenAI API 协议。
+* [x] ​**Embedding Models**​: 支持本地 Embedding 模型的调用与切换（e.g., `bge-large-zh`, `Qwen3-embedding`）。
+* [ ] ​**Multimodal**​: 接入多模态大模型，支持“图+文”跨模态理解。
+
+**Data Pipeline**
+
+* [x] ​**Document Loader**​: 支持格式：Markdown, PDF, Word (`.docx`), Images (OCR)。PPT支持（待开发）。
+* [x] ​**Text Splitting**​: 实现基于分隔符的递归切分及 NLTK/Spacy 语义切分策略。
+* [ ] ​**Data Cleaning**​: 实现文档自动清理与格式规范化。
+* [ ] ​**Automated Pipeline**​: 搭建 `Load` -> `Chunk` -> `Embed` -> `Store` 自动化处理流水线。
+* [ ] **Vector Store**​: 集成 Chroma 向量库进行存储管理。
+* [ ] ​**Indexing Strategy**​: 实现父子索引（Parent-Child Indexing）策略。
+
+**Retrieval & Generation (RAG)**
+
+* [ ] ​**Query Rewriting**​: 实现查询改写模块。
+* [ ] ​**Hybrid Search**​: 混合检索策略（向量相似度 + BM25 关键词），支持加权融合。
+* [ ] ​**Re-ranking**​: 引入重排序模型（e.g., `BGE-Reranker`）对召回文档进行精细打分。
+* [ ] ​**Prompt Engineering**​: 构建动态提示词模版（System Prompt + Context + History + Query）。
+
+**Evaluation**
+
+* [ ] 基于 Ragas 框架实现检索与生成的自动化评估指标。
+
+**UI**
+
+* [ ] 基于 Streamlit 构建对话 Demo 及知识库管理界面。
+
+**Fine-tuning**
+未完待续...
