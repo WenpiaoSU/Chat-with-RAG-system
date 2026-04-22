@@ -7,6 +7,9 @@ import logging
 import os
 from typing import Any, List, Optional, Union
 
+# 设置模型缓存目录
+os.environ.setdefault("MODEL_CACHE_DIR", "/hot_disk_1T/data/swp/huggingface")
+
 import numpy as np
 import torch
 
@@ -58,12 +61,31 @@ class BGEEmbedding(BaseEmbedding):
         
         self.query_instruction = query_instruction
         self.passage_instruction = passage_instruction
-        self.cache_folder = cache_folder or os.path.expanduser("~/.cache/huggingface")
-        
+        self.cache_folder = cache_folder or self._get_default_cache_dir()
+
         self._tokenizer = None
         self._model = None
-        
+
         self.load_model()
+
+    @staticmethod
+    def _get_default_cache_dir() -> str:
+        """获取默认的模型缓存目录
+
+        优先级：环境变量 MODEL_CACHE_DIR > 环境变量 HF_HOME > 默认路径
+
+        Returns:
+            str: 缓存目录路径
+        """
+        env_cache = os.environ.get("MODEL_CACHE_DIR")
+        if env_cache:
+            return env_cache
+
+        hf_home = os.environ.get("HF_HOME")
+        if hf_home:
+            return hf_home
+
+        return os.path.expanduser("~/.cache/huggingface")
     
     def load_model(self) -> Any:
         """加载 BGE 模型和分词器

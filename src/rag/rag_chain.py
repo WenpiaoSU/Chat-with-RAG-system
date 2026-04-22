@@ -13,6 +13,7 @@ import numpy as np
 
 from ..embedding.base import BaseEmbedding
 from ..llm.base import BaseLLM, LLMResponse
+from ..llm.llm_factory import LLMFactory
 from .prompts import PromptManager, get_default_prompt_manager
 
 logger = logging.getLogger(__name__)
@@ -556,15 +557,8 @@ class RAGChain:
             embedding_model = BGEEmbedding.from_settings()
         
         if llm is None:
-            from ..llm import OpenAILLM
-            llm = OpenAILLM(
-                model_name=settings.llm.openai.model,
-                api_key=settings.llm.openai.api_key or None,
-                api_base=settings.llm.openai.api_base,
-                temperature=settings.llm.openai.temperature,
-                max_tokens=settings.llm.openai.max_tokens,
-                streaming=settings.llm.openai.streaming,
-            )
+            from ..llm.llm_factory import LLMFactory
+            llm = LLMFactory.create_from_settings()
         
         if vectorstore is None:
             vectorstore = ChromaVectorStore(

@@ -14,6 +14,7 @@ import numpy as np
 from ..configs.settings import get_settings
 from ..llm.base import BaseLLM, LLMResponse
 from ..llm.openai_llm import OpenAILLM
+from ..llm.llm_factory import LLMFactory
 
 logger = logging.getLogger(__name__)
 
@@ -107,12 +108,14 @@ class RagasEvaluator:
     @classmethod
     def from_settings(cls) -> "RagasEvaluator":
         """从配置文件创建设估器
-        
+
+        根据配置自动选择 OpenAI 或 Xinference LLM。
+
         Returns:
             RagasEvaluator: 评估器实例
         """
         settings = get_settings()
-        
+
         llm: Optional[BaseLLM] = None
         if settings.llm.provider == "openai":
             llm = OpenAILLM(
@@ -122,7 +125,19 @@ class RagasEvaluator:
                 temperature=0.0,
                 max_tokens=2000,
             )
-        
+        elif settings.llm.provider == "xinference":
+            from ..llm.xinference_llm import XinferenceLLM
+
+            llm = XinferenceLLM(
+                endpoint=settings.llm.xinference.endpoint,
+                model_uid=settings.llm.xinference.model_uid,
+                temperature=0.0,
+                max_tokens=2000,
+                timeout=settings.llm.xinference.timeout,
+            )
+        else:
+            llm = LLMFactory.create_from_settings(temperature=0.0, max_tokens=2000)
+
         return cls(
             llm=llm,
             timeout=60,

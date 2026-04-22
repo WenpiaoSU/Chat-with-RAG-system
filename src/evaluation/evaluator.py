@@ -15,7 +15,7 @@ import numpy as np
 
 from ..configs.settings import get_settings
 from ..llm.base import BaseLLM
-from ..llm.openai_llm import OpenAILLM
+from ..llm.llm_factory import LLMFactory
 from ..rag.rag_chain import RAGChain, RAGResponse
 from .metrics import (
     EvaluationMetrics,
@@ -146,7 +146,7 @@ class RAGEvaluator:
     def llm(self) -> BaseLLM:
         """获取 LLM"""
         if self._llm is None:
-            self._llm = OpenAILLM.from_settings()
+            self._llm = LLMFactory.create_from_settings()
         return self._llm
     
     @classmethod

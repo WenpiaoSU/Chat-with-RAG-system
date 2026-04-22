@@ -13,6 +13,7 @@ import json
 from ..configs.settings import get_settings
 from ..llm.base import BaseLLM
 from ..llm.openai_llm import OpenAILLM
+from ..llm.llm_factory import LLMFactory
 from ..data_process.loaders.loader_factory import LoaderFactory
 from ..data_process.splitters.recursive_splitter import RecursiveTextSplitter
 
@@ -127,12 +128,14 @@ class TestSetGenerator:
     @classmethod
     def from_settings(cls) -> "TestSetGenerator":
         """从配置文件创建生成器
-        
+
+        根据配置自动选择 OpenAI 或 Xinference LLM。
+
         Returns:
             TestSetGenerator: 生成器实例
         """
         settings = get_settings()
-        
+
         llm: Optional[BaseLLM] = None
         if settings.llm.provider == "openai":
             llm = OpenAILLM(
@@ -142,9 +145,21 @@ class TestSetGenerator:
                 temperature=0.7,
                 max_tokens=2000,
             )
-        
+        elif settings.llm.provider == "xinference":
+            from ..llm.xinference_llm import XinferenceLLM
+
+            llm = XinferenceLLM(
+                endpoint=settings.llm.xinference.endpoint,
+                model_uid=settings.llm.xinference.model_uid,
+                temperature=0.7,
+                max_tokens=2000,
+                timeout=settings.llm.xinference.timeout,
+            )
+        else:
+            llm = LLMFactory.create_from_settings(temperature=0.7, max_tokens=2000)
+
         testset_config = settings.evaluation.testset
-        
+
         return cls(
             llm=llm,
             num_pairs=testset_config.get("default_num_pairs", 10),

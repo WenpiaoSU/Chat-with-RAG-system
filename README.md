@@ -5,29 +5,26 @@
 基于 LangChain 框架实现的本地知识库 RAG（Retrieval-Augmented Generation）智能问答系统。支持多格式文档处理、混合检索、重排序、多模态理解等功能，提供完整的 RAG 评估体系。
 
 **核心特性**：
+
 - 🌐 支持 Xinference 本地部署 / OpenAI API 两种大模型调用方式
 - 📄 多格式文档加载：Markdown、PDF、Word、图片（OCR/多模态）、PPT、CSV
 - 🔍 混合检索：HNSW 语义检索 + BM25 关键词 + RRF 融合 + 重排序
 - 📊 完整的 RAG 评估体系：基于 Ragas 框架
-- 🎨 Streamlit 可视化界面 + FastAPI RESTful 接口
+- 🎨 Streamlit 可视化界面
 
 ---
 
 ## 技术栈
 
-| 层级 | 技术选型 | 说明 |
-|------|---------|------|
-| **大模型** | OpenAI API / Xinference | 兼容 OpenAI 协议 |
-| **Embedding** | bge-large-zh / Qwen3-embedding | 支持本地部署 |
-| **Reranker** | BGE-Reranker | 文档重排序 |
-| **多模态** | Qwen3-VL-8B-Instruct | 图文理解 |
-| **向量库** | Chroma | 本地向量存储 |
-| **OCR** | RapidOCR | 图片/扫描件识别 |
-| **文本分割** | LangChain + 自定义 | 递归/语义分割 |
-| **LLM框架** | LangChain | RAG 编排 |
-| **后端框架** | FastAPI | RESTful API |
-| **前端框架** | Streamlit | 可视化界面 |
-| **评估框架** | Ragas | RAG 质量评估 |
+| 层级          | 技术选型                       | 说明             |
+| ------------- | ------------------------------ | ---------------- |
+| **大模型**    | OpenAI API / Xinference        | 兼容 OpenAI 协议 |
+| **Embedding** | bge-large-zh / Qwen3-embedding | 支持本地部署     |
+| **Reranker**  | BGE-Reranker                   | 文档重排序       |
+| **多模态**    | Qwen3-VL-8B-Instruct           | 图文理解         |
+| **向量库**    | Chroma                         | 本地向量存储     |
+| **前端框架**  | Streamlit                      | 可视化界面       |
+| **评估框架**  | Ragas                          | RAG 质量评估     |
 
 ---
 
@@ -35,34 +32,33 @@
 
 ### LLM & Embedding Core
 
-- [x] **大模型调用**：支持 API 调用（暂不实现 Xinference 本地部署）
-- [ ] **Embedding Models**：支持本地 Embedding 模型调用与热切换（`bge-large-zh`、`Qwen3-embedding`）
-- [ ] **Multimodal**：接入多模态大模型，支持"图+文"跨模态理解
+- [X]  **大模型调用**：支持 OpenAI API / Xinference 两种调用模式
+- [ ]  **Embedding Models**：支持本地 Embedding 模型调用与热切换（`bge-large-zh`、`Qwen3-embedding`）
+- [ ]  **Multimodal**：接入多模态大模型，支持"图+文"跨模态理解
 
 ### Data Pipeline
 
-- [x] **Document Loader**：支持 Markdown、PDF、Word（`.docx`）、图片、PPT、CSV
-- [x] **Text Splitting**：基于分隔符的递归切分及 NLTK 语义切分
-- [x] **Data Cleaning**：文档自动清理与格式规范化
-- [x] **Vector Store**：集成 Chroma 向量库
-- [x] **Indexing Strategy**：父子索引（Parent-Child Indexing）策略
+- [X]  **Document Loader**：支持 Markdown、PDF、Word（`.docx`）、图片、PPT、CSV
+- [X]  **Text Splitting**：基于分隔符的递归切分及 NLTK 语义切分
+- [X]  **Data Cleaning**：文档自动清理与格式规范化
+- [X]  **Vector Store**：集成 Chroma 向量库
+- [X]  **Indexing Strategy**：父子索引（Parent-Child Indexing）策略
 
 ### Retrieval & Generation (RAG)
 
-- [x] **Query Rewriting**：查询改写模块（含自动降级机制）
-- [x] **Hybrid Search**：HNSW 语义检索 + BM25 关键词 + RRF 加权融合
-- [x] **Re-ranking**：引入 BGE-Reranker 进行精细打分
-- [ ] **Prompt Engineering**：动态提示词模板（System Prompt + Context + History + Query）
+- [X]  **Query Rewriting**：查询改写模块（含自动降级机制）
+- [X]  **Hybrid Search**：HNSW 语义检索 + BM25 关键词 + RRF 加权融合
+- [X]  **Re-ranking**：引入 BGE-Reranker 进行精细打分
+- [ ]  **Prompt Engineering**：动态提示词模板（System Prompt + Context + History + Query）
 
 ### Evaluation
 
-- [x] **Ragas 评估**：检索与生成的自动化评估指标
-- [x] **测试集生成**：基于 LLM 自动生成问答测试集
+- [X]  **Ragas 评估**：检索与生成的自动化评估指标
+- [X]  **测试集生成**：基于 LLM 自动生成问答测试集
 
 ### WebUI & API
 
-- [ ] **Streamlit**：对话 Demo 及知识库管理界面
-- [ ] **FastAPI**：RESTful 接口（`/v1/chat/completions`, `/kb/upload`, `/kb/search`）
+- [X]  **Streamlit**：对话 Demo 及知识库管理界面
 
 ---
 
@@ -80,8 +76,10 @@ Chat-with-RAG-system/
 │   │
 │   ├── llm/                     # 大模型调用
 │   │   ├── __init__.py
-│   │   ├── base.py           # LLM 基类
-│   │   └── openai_llm.py     # OpenAI 实现
+│   │   ├── base.py              # LLM 基类
+│   │   ├── openai_llm.py        # OpenAI 实现
+│   │   ├── xinference_llm.py    # Xinference 本地部署实现
+│   │   └── llm_factory.py       # LLM 工厂类（统一创建接口）
 │   │
 │   ├── embedding/            # Embedding 模型
 │   │   ├── __init__.py
@@ -149,33 +147,12 @@ Chat-with-RAG-system/
 │   │   ├── testset_generator.py  # 测试集生成器
 │   │   └── reporter.py           # 评估报告生成器
 │   │
-│   ├── api/                      # API 层
-│   │   ├── __init__.py
-│   │   ├── main.py               # FastAPI 入口
-│   │   ├── routes/               # 路由
-│   │   │   ├── __init__.py
-│   │   │   ├── chat.py           # 对话接口
-│   │   │   ├── knowledge_base.py # 知识库接口
-│   │   │   └── evaluation.py     # 评估接口
-│   │   ├── schemas/              # 数据模型
-│   │   │   ├── __init__.py
-│   │   │   ├── request.py        # 请求模型
-│   │   │   └── response.py       # 响应模型
-│   │   └── dependencies.py       # 依赖注入
-│   │
 │   └── webui/                    # WebUI
 │       ├── __init__.py
 │       ├── main.py               # Streamlit 入口
-│       ├── pages/
-│       │   ├── __init__.py
-│       │   ├── chat.py           # 对话页面
-│       │   ├── knowledge_base.py # 知识库管理页面
-│       │   └── evaluation.py     # 评估页面
-│       └── components/
-│           ├── __init__.py
-│           ├── chat_box.py        # 对话组件
-│           ├── file_uploader.py   # 文件上传组件
-│           └── settings.py        # 设置面板
+│       ├── chat.py               # 对话页面
+│       ├── knowledge_base.py     # 知识库管理页面
+│       └── evaluation.py         # 评估页面
 │
 ├── data/                         # 数据目录
 │   ├── knowledge_db/            # 知识库文件
@@ -183,17 +160,6 @@ Chat-with-RAG-system/
 │   └── uploads/                 # 用户通过前端上传的文档暂存路径
 │
 ├── tests/                        # 测试目录
-│   ├── __init__.py
-│   ├── unit/                    # 单元测试
-│   │   ├── __init__.py
-│   │   ├── test_loaders.py
-│   │   ├── test_splitters.py
-│   │   ├── test_retrieval.py
-│   │   └── test_rag.py
-│   └── integration/             # 集成测试
-│       ├── __init__.py
-│       └── test_pipeline.py
-│
 ├── examples/                     # 示例文件
 ├── docs/                         # 文档
 ├── logs/                         # 日志目录
@@ -216,10 +182,8 @@ git clone https://github.com/your-repo/Chat-with-RAG-system.git
 cd Chat-with-RAG-system
 
 # 创建虚拟环境
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-.\venv\Scripts\activate  # Windows
+conda create -n chat python=3.11
+conda activate chat
 
 # 安装依赖
 pip install -r requirements.txt
@@ -236,7 +200,21 @@ OPENAI_API_KEY=your-api-key-here
 OPENAI_API_BASE=https://api.openai.com/v1
 ```
 
-### 3. 启动服务
+### 3. Xinference 模型部署
+
+**启动Xinference服务：**
+```bash
+export XINFERENCE_HOME=/hot_disk_1T/data/swp/xinference   # 环境变量指定模型缓存目录
+xinference-local -H 0.0.0.0 -p 9997     # 启动服务
+```
+
+**部署LLM：**
+
+```bash
+xinference launch --model-name qwen2.5-instruct --size-in-billions 7 --model-format pytorch --model-engine vllm
+```
+
+### 4. 启动服务
 
 **方式一：仅启动 API**
 
@@ -256,10 +234,9 @@ streamlit run webui/main.py --server.port 8501
 
 ## 未来规划
 
-- [ ] Xinference 本地部署支持
-- [ ] 多用户知识库隔离
-- [ ] 增量索引更新
-- [ ] 知识库版本管理
-- [ ] 更多 Embedding 模型支持
-- [ ] Agent 能力扩展
-- [ ] 模型微调
+- [ ]  多用户知识库隔离
+- [ ]  增量索引更新
+- [ ]  知识库版本管理
+- [ ]  更多 Embedding 模型支持
+- [ ]  Agent 能力扩展
+- [ ]  模型微调

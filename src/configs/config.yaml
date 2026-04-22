@@ -5,7 +5,7 @@
 # ============================================================
 llm:
   # 提供商: openai | xinference
-  provider: "openai"
+  provider: "xinference"
 
   # OpenAI API 配置
   openai:
@@ -16,12 +16,14 @@ llm:
     max_tokens: 2000                         # 最大生成 token 数
     streaming: true                          # 是否启用流式输出
 
-  # Xinference 本地部署配置（暂不使用）
-  # xinference:
-  #   endpoint: "http://localhost:9997"
-  #   model_uid: "qwen2.5-7b-instruct"
-  #   temperature: 0.7
-  #   max_tokens: 2000
+  # Xinference 本地部署配置
+  xinference:
+    endpoint: "http://localhost:9997"              # Xinference 服务地址
+    model_uid: "qwen2.5-7b-instruct"              # 模型 UID（启动 Xinference 时指定）
+    temperature: 0.7                               # 生成温度
+    max_tokens: 2000                              # 最大生成 token 数
+    streaming: true                                # 是否启用流式输出
+    timeout: 120.0                                # 请求超时时间（秒）
 
 # ============================================================
 # Embedding 模型配置

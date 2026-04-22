@@ -6,6 +6,7 @@
 配置支持环境变量插值（${ENV_VAR} 语法）。
 """
 
+import logging
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -14,6 +15,8 @@ from typing import Any, Dict, List, Optional
 import yaml
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIConfig(BaseModel):
@@ -26,10 +29,21 @@ class OpenAIConfig(BaseModel):
     streaming: bool = True
 
 
+class XinferenceConfig(BaseModel):
+    """Xinference 本地部署配置"""
+    endpoint: str = "http://localhost:9997"
+    model_uid: str = "qwen2.5-7b-instruct"
+    temperature: float = 0.7
+    max_tokens: int = 2000
+    streaming: bool = True
+    timeout: float = 120.0
+
+
 class LLMConfig(BaseModel):
     """大模型配置"""
     provider: str = "openai"
     openai: OpenAIConfig = Field(default_factory=OpenAIConfig)
+    xinference: XinferenceConfig = Field(default_factory=XinferenceConfig)
 
 
 class BGEEmbeddingConfig(BaseModel):
@@ -269,23 +283,24 @@ def _resolve_env_vars(value: Any) -> Any:
 @lru_cache()
 def get_settings() -> Settings:
     """获取全局配置单例（带缓存）
-    
+
     从 config.yaml 加载配置，支持环境变量插值。
-    
+
     Returns:
         Settings: 全局配置实例
     """
     config_path = Path(__file__).parent / "config.yaml"
-    
+
     if not config_path.exists():
         raise FileNotFoundError(f"配置文件不存在: {config_path}")
-    
+
     with open(config_path, "r", encoding="utf-8") as f:
         raw_config = yaml.safe_load(f)
-    
-    resolved_config = _resolve_env_vars(raw_config)
-    return Settings(**resolved_config)
 
+    resolved_config = _resolve_env_vars(raw_config)
+    settings = Settings(**resolved_config)
+
+    return settings
 
 # 全局配置实例
 settings = get_settings()
