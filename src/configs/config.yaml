@@ -1,0 +1,204 @@
+# Chat-with-RAG-system 配置文件
+
+# ============================================================
+# 大模型配置 (LLM)
+# ============================================================
+llm:
+  # 提供商: openai | xinference
+  provider: "openai"
+
+  # OpenAI API 配置
+  openai:
+    model: "gpt-4o-mini"                     # 模型名称
+    api_base: "https://api.openai.com/v1"    # API 地址
+    api_key: "${OPENAI_API_KEY}"             # 从环境变量读取
+    temperature: 0.7                         # 生成温度
+    max_tokens: 2000                         # 最大生成 token 数
+    streaming: true                          # 是否启用流式输出
+
+  # Xinference 本地部署配置（暂不使用）
+  # xinference:
+  #   endpoint: "http://localhost:9997"
+  #   model_uid: "qwen2.5-7b-instruct"
+  #   temperature: 0.7
+  #   max_tokens: 2000
+
+# ============================================================
+# Embedding 模型配置
+# ============================================================
+embedding:
+  # 提供商: bge | qwen
+  provider: "bge"
+
+  # BGE Embedding 配置
+  bge:
+    model_name: "BAAI/bge-large-zh-v1.5"     # 模型名称
+    device: "cuda"                           # 设备: cuda | cpu
+    batch_size: 32                           # 批处理大小
+    dimension: 1024                          # 向量维度 (bge-large-zh: 1024)
+    normalize_embeddings: true               # 是否归一化
+
+    # 检索指令（针对 query）
+    query_instruction: "为这个句子生成表示以用于检索相关文章："
+    passage_instruction: ""
+
+# ============================================================
+# Reranker 模型配置
+# ============================================================
+reranker:
+  enabled: true                              # 是否启用重排序
+  provider: "bge"
+
+  bge:
+    model_name: "BAAI/bge-reranker-large"    # 模型名称
+    device: "cuda"                           # 设备
+    top_k: 20                                # 重排序前召回数量
+    max_length: 512                           # 最大序列长度
+
+# ============================================================
+# 向量数据库配置
+# ============================================================
+vectorstore:
+  provider: "chroma"                         # 向量库提供商: chroma | faiss | milvus
+
+  chroma:
+    persist_directory: "./data/vector_db"    # 持久化存储路径
+    collection_name: "default"               # 默认集合名称
+    distance_metric: "cosine"                # 距离度量: cosine | euclidean | manhattan
+
+# ============================================================
+# 文档处理配置
+# ============================================================
+document:
+  # 文本分割配置
+  chunking:
+    chunk_size: 500                          # 块大小（字符数）
+    chunk_overlap: 50                        # 块重叠大小
+    separators:                              # 分隔符列表（按优先级）
+      - "\n\n"                               # 段落分隔
+      - "\n"                                 # 换行分隔
+      - "。|！|？"                            # 中文句子结束
+      - "\.\s|\!\s|\?\s"                    # 英文句子结束
+      - "；|;\s"                             # 分号
+      - "，|,\s"                              # 逗号
+
+  # 父子文档分割配置
+  parent_child:
+    enabled: false                           # 是否启用父子分割
+    child_chunk_size: 200                    # 小块大小
+    parent_chunk_size: 1500                  # 大块大小
+    child_overlap: 20
+    parent_overlap: 150
+
+  # OCR 配置
+  ocr:
+    enabled: true                            # 是否启用 OCR
+    use_cuda: true                           # 是否使用 GPU
+    image_threshold: 0.1                    # 图片占页面比例阈值（小于此值跳过）
+
+  # 数据清洗配置
+  cleaning:
+    remove_extra_whitespace: true            # 去除多余空白
+    remove_special_chars: false              # 去除特殊字符
+    strip_html: true                         # 去除 HTML 标签
+
+# ============================================================
+# 检索配置
+# ============================================================
+retrieval:
+  top_k: 5                                   # 返回结果数量
+  score_threshold: 0.5                      # 相似度阈值（0-1）
+
+  # 混合检索配置
+  hybrid_search:
+    enabled: true                            # 是否启用混合检索
+    semantic_weight: 0.7                     # 语义检索权重
+    keyword_weight: 0.3                      # 关键词检索权重
+    rrf_k: 60                                # RRF 平滑参数
+
+  # 查询改写配置
+  query_rewrite:
+    enabled: true                            # 是否启用查询改写
+    timeout: 3.0                             # 改写超时时间（秒）
+    enable_fallback: true                    # 超时后是否降级使用原始查询
+
+# ============================================================
+# 对话配置
+# ============================================================
+conversation:
+  max_messages: 20                           # 最大对话消息数
+  max_tokens: 4096                           # 历史最大 token 数
+  include_history: true                      # 是否包含历史对话
+
+# ============================================================
+# 评估配置
+# ============================================================
+evaluation:
+  provider: "ragas"                          # 评估框架: ragas | 自定义
+
+  # 测试集生成配置
+  testset:
+    default_num_pairs: 10                   # 默认生成的问答对数量
+    max_context_length: 8000                 # 最大上下文长度
+
+  # 评估器配置
+  evaluator:
+    batch_size: 10                          # 批处理大小
+    timeout: 60                              # 单次评估超时（秒）
+    save_results: true                       # 是否保存评估结果
+    output_dir: "./data/evaluation"          # 评估结果输出目录
+
+  # 报告配置
+  report:
+    default_format: "markdown"              # 默认报告格式: text | json | markdown | html
+    include_details: true                    # 是否包含详细结果
+
+  # 权重配置（用于计算综合得分）
+  weights:
+    faithfulness: 0.3                       # 忠实度权重
+    answer_relevancy: 0.3                    # 答案相关性权重
+    context_recall: 0.25                     # 上下文召回权重
+    context_precision: 0.15                   # 上下文精确度权重
+
+# ============================================================
+# API 配置
+# ============================================================
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: true
+  workers: 1
+  log_level: "info"
+
+  # CORS 配置
+  cors:
+    enabled: true
+    allow_origins: ["*"]
+    allow_credentials: true
+    allow_methods: ["*"]
+    allow_headers: ["*"]
+
+# ============================================================
+# WebUI 配置
+# ============================================================
+webui:
+  server:
+    host: "0.0.0.0"
+    port: 8501
+    page_title: "RAG 智能问答系统"
+    page_icon: "🤖"
+
+  theme:
+    primary_color: "#1f77ff"
+    background_color: "#ffffff"
+    text_color: "#262730"
+
+# ============================================================
+# 日志配置
+# ============================================================
+logging:
+  level: "INFO"                              # 日志级别
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/app.log"                     # 日志文件路径
+  max_bytes: 10485760                        # 单个日志文件最大大小
+  backup_count: 5                            # 保留的日志文件数量

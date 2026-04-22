@@ -1,7 +1,10 @@
 docs/
+data/
+test/
 .idea/
 __pycache__/
 *.pyc
 venv/
 .env
 .DS_Store
+.cursor
